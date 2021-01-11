@@ -1,0 +1,80 @@
+let panier = JSON.parse(localStorage.getItem("panier"))
+let articles = 0
+
+if(panier !== null){
+  panier.forEach(a => {
+    articles = articles + a[5]
+  })
+}
+
+$(function(){
+  visuPanier()
+
+  $("#valider-achat")[0].addEventListener('click', () => {
+    document.location.href = "finalisation_achat.html"
+  })
+
+  $("#vider-panier")[0].addEventListener('click', () => {
+    viderPanier()
+  })
+
+  let nombreArticle = document.createTextNode(articles)
+  $("#articles")[0].appendChild(nombreArticle)
+})
+
+// fonction permettant de visualiser le panier
+function visuPanier(){
+  $("#mon-panier")[0].innerHTML = ''
+  if(panier != null){
+    panier.forEach(a => {
+     let div = document.createElement("div");
+     div.className = "unique-article"
+     let img = document.createElement("img")
+     img.src = a[3]
+
+     let name = document.createElement("span")
+     let textName = document.createTextNode(a[0])
+     name.appendChild(textName)
+
+     let price = document.createElement("span")
+     let textPrice = document.createTextNode(a[1]+" €")
+     price.appendChild(textPrice)
+
+     let nombreDeFois = document.createElement("span")
+     let texteNbFois = document.createTextNode("  x "+a[5])
+     nombreDeFois.appendChild(texteNbFois)
+
+
+     let totalPrice = document.createElement("span")
+     let totalText = document.createTextNode(a[1] * a[5]+" €")
+     totalPrice.appendChild(totalText)
+
+     div.appendChild(img)
+     div.appendChild(name)
+     div.appendChild(price)
+     div.appendChild(nombreDeFois)
+     div.appendChild(totalPrice)
+
+     $("#mon-panier")[0].appendChild(div)
+    })
+  }
+  else{
+    $("#mon-panier")[0].innerHTML = ''
+    $("#panier-footer")[0].style.display = "none"
+
+    let paniervide = document.createTextNode("Votre panier est actuellement vide veuillez faire des achat...")
+    $("#mon-panier")[0].appendChild(paniervide)
+    $("#mon-panier")[0].style.color = "red"
+   
+  }
+}
+
+// fonction permetant de vider le panier une fois les achat effecter ou quand le client click sur vider le panier
+function viderPanier(){
+  localStorage.removeItem("panier")
+  panier = JSON.parse(localStorage.getItem("panier"))
+  articles = 0
+  let nombreArticle = document.createTextNode(articles)
+  $("#articles")[0].innerHTML = ''
+  $("#articles")[0].appendChild(nombreArticle)
+}

@@ -1,0 +1,79 @@
+let panier = JSON.parse(localStorage.getItem("panier"))
+let articles = 0
+
+if(panier !== null){
+  panier.forEach(a => {
+    articles = articles + a[5]
+  })
+}
+
+$(function(){
+  $("#valider-achat")[0].addEventListener('submit', e => {
+    e.preventDefault()
+    validerAchat()
+  })
+
+  $("#visu-panier")[0].addEventListener('click', () => {
+    document.location.href = "panier.html"
+  })
+
+  let nombreArticle = document.createTextNode(articles)
+  $("#articles")[0].appendChild(nombreArticle)
+})
+
+// fonction permettant de finaliser les achats
+function validerAchat(){
+  let nom = $("#nom").val()
+  let prenom = $("#prenom").val()
+  let adresse = $("#adresse").val()
+  let ville = $("#ville").val()
+  let email = $("#email").val()
+
+  let produit = []
+
+  if(panier != null){
+    panier.map(a => {
+      produit.push(a[4])
+    })
+  }
+  
+  if(nom.length < 2){
+    $("#nom").val("Entrer un nom valide")
+  }else if(prenom < 6){
+    $("#prenom").val("Entrez un prnom valide")
+  }else if(adresse < 10){
+    $("#adresse").val("Entrez une adresse valide")
+  }else{
+    const requestOptions = {
+      method: 'POST',
+      headers:{
+        'Accept': 'Application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contact: {
+          'lastName': prenom,
+          'firstName': nom,
+          'address': adresse,
+          'city': ville,
+          'email': email
+        },
+        products: produit
+      })
+    };
+
+    fetch('http://localhost:3000/api/teddies/order', requestOptions)
+      .then(res => res.json())
+      .then(res => {
+        localStorage.setItem("numero de commande", res.orderId)
+        localStorage.setItem("nom", res.contact.firstName)
+        localStorage.setItem("prenom", res.contact.lastName)
+        localStorage.setItem("adresse", res.contact.address)
+        localStorage.setItem("ville", res.contact.city)
+
+        document.location.href = "remerciement.html"
+
+        localStorage.removeItem("panier")
+      })
+  }
+}

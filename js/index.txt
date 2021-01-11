@@ -1,0 +1,68 @@
+let choiceColor = null
+let choiceName = null
+let choicePrice = null
+let choiceId = null
+let choiceImg = null
+let articles = 0
+// localStorage.removeItem("panier")
+
+let panier = JSON.parse(localStorage.getItem("panier"))
+if(panier !== null){
+  panier.forEach(a => {
+    articles = articles + a[5]
+  })
+}
+
+$(function(){
+  listeDesProduits();
+
+  $("#visu-panier")[0].addEventListener('click', () => {
+    document.location.href = "panier.html"
+  })
+
+  let nombreArticle = document.createTextNode(articles)
+  $("#articles")[0].appendChild(nombreArticle)
+})
+// lister des produits
+function listeDesProduits(){
+  const requestOptions = {
+    method: 'GET',
+    headers:{
+      'Accept': 'Application/json',
+      'Content-Type': 'application/json',
+    }
+  };
+  fetch('http://localhost:3000/api/teddies', requestOptions)
+    .then(res => res.json())
+    .then(res => {
+      res.forEach(element => {
+      	let div = document.createElement("div")
+      	div.className = "produit"
+
+        let image = document.createElement('img')
+        image.className = "image"
+        image.src = element.imageUrl;
+
+        let name = document.createElement("h4")
+        let textName = document.createTextNode(element.name)
+        name.appendChild(textName)
+
+      	let button = document.createElement("button")
+      	let textButton = document.createTextNode("Voir "+element.name)
+
+        button.appendChild(textButton)
+
+        button.addEventListener('click', () => {
+          localStorage.setItem("seletedProduct", element._id)
+          document.location.href = "detail_produit.html"
+          // detailProduit(element._id)
+        })
+
+        div.appendChild(image)
+        div.appendChild(name)
+        div.appendChild(button)
+
+        document.getElementById("liste-article").appendChild(div)
+      });
+    })
+}

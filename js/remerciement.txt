@@ -1,0 +1,28 @@
+$(function(){
+  let prenom = localStorage.getItem("prenom")
+  let nom = localStorage.getItem("nom")
+  let ville = localStorage.getItem("ville")
+  let orderId = localStorage.getItem("numero de commande")
+  let adresse = localStorage.getItem("adresse")
+
+  $("#visu-panier")[0].addEventListener('click', () => {
+    document.location.href = "panier.html"
+  })
+
+  
+  let prenomNom = document.createTextNode(prenom+" "+nom)
+  $("#nom")[0].appendChild(prenomNom)
+
+  let numerodeCommande = document.createTextNode(orderId)
+  $("#num")[0].appendChild(numerodeCommande)
+
+  let address = document.createTextNode(adresse+", "+ville)
+  $("#address")[0].appendChild(address)
+
+  localStorage.removeItem("prenom")
+  localStorage.removeItem("nom")
+  localStorage.removeItem("ville")
+  localStorage.removeItem("numero de commande")
+  localStorage.removeItem("adresse")
+
+})

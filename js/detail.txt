@@ -1,0 +1,125 @@
+let choiceColor = null
+let choiceName = null
+let choicePrice = null
+let choiceImg = null
+let articles = 0
+let idProduit = localStorage.getItem("seletedProduct")
+
+let panier = JSON.parse(localStorage.getItem("panier"))
+if(panier !== null){
+  panier.forEach(a => {
+    articles = articles + a[5]
+  })
+}
+
+$(function(){
+  detailProduit(idProduit)
+
+  $("#add-article")[0].addEventListener('click', () => {
+    let monPanier = [choiceName, choicePrice, choiceColor, choiceImg, idProduit, 0]
+    ajoutPanier(monPanier)
+  })
+
+  $("#choix-couleur")[0].addEventListener('change', () => {
+    let color = $("#choix-couleur").val()
+    choix(color)
+  })
+
+  $("#visu-panier")[0].addEventListener('click', () => {
+    document.location.href = "panier.html"
+  })
+
+  let nombreArticle = document.createTextNode(articles)
+  $("#articles")[0].appendChild(nombreArticle)
+})
+
+// fonction permetant d'afficher le détail du produit
+function detailProduit(idProduit){
+  const requestOptions = {
+    method: 'GET',
+    headers:{
+      'Accept': 'Application/json',
+      'Content-Type': 'application/json',
+    }
+  };
+  fetch('http://localhost:3000/api/teddies/'+idProduit)
+    .then(res => res.json())
+    .then(res => {
+      choiceName = res.name
+      choicePrice = res.price
+      choiceId = res._id
+      choiceImg = res.imageUrl
+
+			let image = document.createElement("img")
+			image.src = res.imageUrl
+      image.className = "descriptionimg"
+      
+      let name = document.createTextNode(res.name)
+      let price = document.createTextNode(res.price+ " €")
+      let textDescription = document.createTextNode(res.description)
+      let listColor = res.colors
+      personalisation(listColor)
+
+      $("#price")[0].innerHTML = ''
+      $("#price")[0].appendChild(price)
+      $("#name-produit")[0].innerHTML = ''
+      $("#name-produit")[0].appendChild(name)
+			$("#imgdetail")[0].innerHTML = ''
+			$("#imgdetail")[0].appendChild(image)
+			$("#description")[0].innerHTML = ''
+			$("#description")[0].appendChild(textDescription)
+    })
+}
+
+// fonction permettant de recuperer les differentes couleur de chaque article et de les afficher
+function personalisation(colors){
+  $("#choix-couleur")[0].innerHTML = ""
+  colors.forEach(color => {
+    let option = document.createElement('option')
+    option.value = color
+    let textoption = document.createTextNode(color)
+
+    option.appendChild(textoption)
+    $("#choix-couleur")[0].appendChild(option)
+  })
+}
+
+// conction permettant de choisir une couleur
+function choix(color){
+  choiceColor = color
+}
+
+// fonction permettant d'ajouter un article dans le panier
+function ajoutPanier(produit){
+  panier = JSON.parse(localStorage.getItem("panier"))
+  if(panier === null){
+    panier = []
+    localStorage.setItem("panier", JSON.stringify(panier))
+    produit[5] = produit[5] + 1
+    panier.push(produit)
+    localStorage.setItem("panier", JSON.stringify(panier));
+    articles = articles + 1
+    let nombreArticle = document.createTextNode(articles)
+    $("#articles")[0].innerHTML = ''
+    $("#articles")[0].appendChild(nombreArticle)
+  }else{
+    let article = panier.find(article => article[4] == choiceId)
+    if(article){
+      let i = panier.indexOf(article)
+      panier[i][5] = panier[i][5] + 1
+      localStorage.setItem("panier", JSON.stringify(panier));
+      articles = articles + 1
+      let nombreArticle = document.createTextNode(articles)
+      $("#articles")[0].innerHTML = ''
+      $("#articles")[0].appendChild(nombreArticle)
+    }else{
+      produit[5] = produit[5] + 1
+      panier.push(produit)
+      localStorage.setItem("panier", JSON.stringify(panier));
+      articles = articles + 1
+      let nombreArticle = document.createTextNode(articles)
+      $("#articles")[0].innerHTML = ''
+      $("#articles")[0].appendChild(nombreArticle)
+    }
+  }
+}
